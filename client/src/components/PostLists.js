@@ -7,5 +7,11 @@ export function PostList() {
     getPosts().then(setPosts);
   }, []);
 
-  return <h1>{JSON.stringify(posts)}</h1>;
+  return posts.map((post) => {
+    return (
+      <h1 key={post.id}>
+        <a href={`./posts/${post.id}`}>{post.title}</a>
+      </h1>
+    );
+  });
 }
