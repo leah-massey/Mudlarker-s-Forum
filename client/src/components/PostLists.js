@@ -1,7 +1,7 @@
 // import { useEffect, useState } from "react";
 import { getPosts } from "../services/posts";
 import { Link } from "react-router-dom";
-import { useAsync } from "./useAsync";
+import { useAsync } from "../hooks/useAsync";
 
 export function PostList() {
   const { loading, error, value: posts } = useAsync(getPosts);
