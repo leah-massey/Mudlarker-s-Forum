@@ -25,6 +25,37 @@ app.get("/posts", async (req, res) => {
   );
 });
 
+app.get("/posts/:id", async (req, res) => {
+  return await commitToDb(
+    prisma.post.findUnique({
+      where: {
+        id: req.params.id,
+      },
+      select: {
+        body: true,
+        title: true,
+        comments: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          select: {
+            id: true,
+            message: true,
+            parentId: true,
+            createdAt: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    })
+  );
+});
+
 // helper function error handling which takes a promise applied to above requests
 //app.to is part of fatsify/sensible library
 async function commitToDb(promise) {
