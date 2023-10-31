@@ -183,6 +183,7 @@ button {
 }
 
 .comment .message {
+  color: black;
   white-space: pre-wrap;
   margin-left: 0.5rem;
   margin-right: 0.5rem;
