@@ -5,7 +5,7 @@ import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
 
 export function Post() {
-  const { post, rootComments } = usePost();
+  const { post, rootComments, createLocalComment } = usePost();
   const {
     loading,
     error,
@@ -13,9 +13,9 @@ export function Post() {
   } = useAsyncFn(createComment); // only want comment form to submit on clicking sumbit (not on page render ) - hence Fn custom hook
 
   function onCommentCreate(message) {
-    return createCommentFn({ postId: post.id, message }).then((comment) => {
-      console.log(comment);
-    });
+    return createCommentFn({ postId: post.id, message }).then(
+      createLocalComment
+    );
   }
 
   return (

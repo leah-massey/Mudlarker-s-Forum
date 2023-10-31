@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useAsync } from "../hooks/useAsync"; // this is our previously made custom hook
 import { useParams } from "react-router-dom"; // extracts the params from a URL (ie. the id etc)
 import { getPost } from "../services/posts";
@@ -17,20 +17,32 @@ export function PostProvider({ children }) {
   const { id } = useParams();
   //fetch post data using the useAsync custom hook using the data (id) extracted above
   const { loading, error, value: post } = useAsync(() => getPost(id, [id]));
+  const [comments, setComments] = useState([]);
   //.GROUPING COMMENTS with the useMemo hook
   const commentsByParentId = useMemo(() => {
-    if (post?.comments == null) return [];
     const group = {};
-    post.comments.forEach((comment) => {
+    comments.forEach((comment) => {
       group[comment.parentId] ||= []; // logical nullish assignment operator, which only assigns an empty array if group[comment.parentId] is null or undefined.
       group[comment.parentId].push(comment);
     });
     return group;
+  }, [comments]);
+
+  useEffect(() => {
+    if (post?.comments == null) return;
+    setComments(post.comments);
   }, [post?.comments]);
+
   console.log(commentsByParentId);
 
   function getReplies(parentId) {
     return commentsByParentId[parentId];
+  }
+
+  function createLocalComment(comment) {
+    setComments((prevComments) => {
+      return [comment, ...prevComments];
+    });
   }
 
   return (
@@ -39,6 +51,7 @@ export function PostProvider({ children }) {
         post: { id, ...post },
         rootComments: commentsByParentId[null],
         getReplies,
+        createLocalComment,
       }}
     >
       {loading ? (
