@@ -40,7 +40,7 @@ async function seed() {
 
   const comment3 = await prisma.comment.create({
     data: {
-      message: "I found on of those last year.",
+      message: "I found one of those last year.",
       userId: sidney.id,
       postId: post1.id,
     },
