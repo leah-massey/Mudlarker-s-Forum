@@ -92,6 +92,39 @@ app.post("/posts/:id/comments", async (req, res) => {
   );
 });
 
+app.put("/posts/:postId/comments/:commentId", async (req, res) => {
+  //error message if message body is empty
+  if (req.body.message === "" || req.body.message == null) {
+    return res.send(app.httpErrors.badRequest("Message is required"));
+  }
+
+  const { userId } = await prisma.comment.findUnique({
+    where: { id: req.params.commentId },
+    select: { userId: true },
+  });
+  if (userId !== req.cookies.userId) {
+    return res.send(
+      app.httpErrors.unauthorized(
+        "You do not have permission to edit this message"
+      )
+    );
+  }
+
+  return await commitToDb(
+    prisma.comment.update({
+      where: {
+        id: req.params.commentId,
+      },
+      data: {
+        message: req.body.message,
+      },
+      select: {
+        message: true,
+      },
+    })
+  );
+});
+
 // helper function error handling which takes a promise applied to above requests
 //app.to is part of fatsify/sensible library
 async function commitToDb(promise) {
