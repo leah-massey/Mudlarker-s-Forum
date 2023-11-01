@@ -3,6 +3,7 @@ import { usePost } from "../contexts/PostContext";
 import { CommentList } from "./CommentList";
 import { IconBtn } from "./IconBtn";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
+import { CommentForm } from "./CommentForm";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -39,6 +40,11 @@ export function Comment({ id, message, user, createdAt }) {
           <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
         </div>
       </div>
+      {isReplying && (
+        <div className="mt--1 ml-3">
+          <CommentForm autoFocus onSubmit loading error />
+        </div>
+      )}
       {childComments?.length > 0 && (
         <>
           <div
