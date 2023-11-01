@@ -10,9 +10,10 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 export function Comment({ id, message, user, createdAt }) {
+  const [areChildrenHidden, setAreChildrenHidden] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
   const { getReplies } = usePost();
   const childComments = getReplies(id);
-  const [areChildrenHidden, setAreChildrenHidden] = useState(false);
 
   return (
     <>
@@ -28,7 +29,12 @@ export function Comment({ id, message, user, createdAt }) {
           <IconBtn Icon={FaHeart} aria-label="Like">
             2
           </IconBtn>
-          <IconBtn Icon={FaReply} aria-label="Reply" />
+          <IconBtn
+            onClick={() => setIsReplying((prev) => !prev)} // flips between true and false
+            isActive={isReplying}
+            Icon={FaReply}
+            aria-label={isReplying ? "Cancel reply" : "Reply"}
+          />
           <IconBtn Icon={FaEdit} aria-label="Edit" />
           <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
         </div>
