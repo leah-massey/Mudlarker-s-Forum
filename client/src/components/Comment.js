@@ -10,6 +10,7 @@ import {
   updateComment,
   deleteComment,
 } from "../services/comments";
+import { useUser } from "../hooks/userUser";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -31,6 +32,7 @@ export function Comment({ id, message, user, createdAt }) {
   const updateCommentFn = useAsyncFn(updateComment);
   const deleteCommentFn = useAsyncFn(deleteComment);
   const childComments = getReplies(id);
+  const currentUser = useUser();
 
   function onCommentReply(message) {
     return createCommentFn
@@ -87,20 +89,27 @@ export function Comment({ id, message, user, createdAt }) {
             Icon={FaReply}
             aria-label={isReplying ? "Cancel reply" : "Reply"}
           />
-          <IconBtn
-            onClick={() => setIsEditing((prev) => !prev)} // flips between true and false
-            Icon={FaEdit}
-            isActive={isEditing}
-            aria-label={isEditing ? "Cancel edit" : "Edit"}
-          />
-          <IconBtn
-            disabled={deleteCommentFn.loading}
-            onClick={onCommentDelete}
-            Icon={FaTrash}
-            aria-label="Delete"
-            color="danger"
-          />
+          {user.id === currentUser.id && (
+            <>
+              <IconBtn
+                onClick={() => setIsEditing((prev) => !prev)} // flips between true and false
+                Icon={FaEdit}
+                isActive={isEditing}
+                aria-label={isEditing ? "Cancel edit" : "Edit"}
+              />
+              <IconBtn
+                disabled={deleteCommentFn.loading}
+                onClick={onCommentDelete}
+                Icon={FaTrash}
+                aria-label="Delete"
+                color="danger"
+              />
+            </>
+          )}
         </div>
+        {deleteCommentFn.error && (
+          <div className="error-msg mt-1">{deleteCommentFn.error}</div>
+        )}
       </div>
       {isReplying && (
         <div className="mt--1 ml-3">
