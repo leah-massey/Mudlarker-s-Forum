@@ -127,7 +127,7 @@ app.put("/posts/:postId/comments/:commentId", async (req, res) => {
   );
 });
 
-app.delete("posts/:postId/comments/:commentId", async (req, res) => {
+app.delete("/posts/:postId/comments/:commentId", async (req, res) => {
   //identify the userId connected to the post
   const { userId } = await prisma.comment.findUnique({
     where: { id: req.params.commentId },
@@ -147,7 +147,7 @@ app.delete("posts/:postId/comments/:commentId", async (req, res) => {
       where: {
         id: req.params.commentId,
       },
-      seleect: {
+      select: {
         id: true,
       },
     })
@@ -155,7 +155,7 @@ app.delete("posts/:postId/comments/:commentId", async (req, res) => {
 });
 
 // helper function error handling which takes a promise applied to above requests
-//app.to is part of fatsify/sensible library
+//app.to is part of fastify/sensible library
 async function commitToDb(promise) {
   const [error, data] = await app.to(promise);
   if (error) return app.httpErrors.internalServerError(error.message);
