@@ -5,7 +5,11 @@ import { IconBtn } from "./IconBtn";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
 import { CommentForm } from "./CommentForm";
 import { useAsyncFn } from "../hooks/useAsync";
-import { createComment, updateComment } from "../services/comments";
+import {
+  createComment,
+  updateComment,
+  deleteComment,
+} from "../services/comments";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -16,10 +20,16 @@ export function Comment({ id, message, user, createdAt }) {
   const [areChildrenHidden, setAreChildrenHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { post, getReplies, createLocalComment, updateLocalComment } =
-    usePost();
+  const {
+    post,
+    getReplies,
+    createLocalComment,
+    updateLocalComment,
+    deleteLocalComment,
+  } = usePost();
   const createCommentFn = useAsyncFn(createComment);
   const updateCommentFn = useAsyncFn(updateComment);
+  const deleteCommentFn = useAsyncFn(deleteComment);
   const childComments = getReplies(id);
 
   function onCommentReply(message) {
@@ -38,6 +48,12 @@ export function Comment({ id, message, user, createdAt }) {
         setIsEditing(false);
         updateLocalComment(id, comment.message);
       });
+  }
+
+  function onCommentDelete() {
+    return deleteCommentFn
+      .execute({ postId: post.id, id })
+      .then((comment) => deleteLocalComment(comment.id));
   }
 
   return (
@@ -77,7 +93,13 @@ export function Comment({ id, message, user, createdAt }) {
             isActive={isEditing}
             aria-label={isEditing ? "Cancel edit" : "Edit"}
           />
-          <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
+          <IconBtn
+            disabled={deleteCommentFn.loading}
+            onClick={onCommentDelete}
+            Icon={FaTrash}
+            aria-label="Delete"
+            color="danger"
+          />
         </div>
       </div>
       {isReplying && (

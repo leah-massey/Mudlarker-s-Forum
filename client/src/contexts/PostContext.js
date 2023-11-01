@@ -57,6 +57,12 @@ export function PostProvider({ children }) {
     });
   }
 
+  function deleteLocalComment(id) {
+    setComments((prevComments) => {
+      return prevComments.filter((comment) => comment.id !== id);
+    });
+  }
+
   return (
     <Context.Provider
       value={{
@@ -65,6 +71,7 @@ export function PostProvider({ children }) {
         getReplies,
         createLocalComment,
         updateLocalComment,
+        deleteLocalComment,
       }}
     >
       {loading ? (
