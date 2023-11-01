@@ -98,10 +98,12 @@ app.put("/posts/:postId/comments/:commentId", async (req, res) => {
     return res.send(app.httpErrors.badRequest("Message is required"));
   }
 
+  //identify the userId connected to the post
   const { userId } = await prisma.comment.findUnique({
     where: { id: req.params.commentId },
     select: { userId: true },
   });
+  //check that userId of post matches the id of the user doing the update
   if (userId !== req.cookies.userId) {
     return res.send(
       app.httpErrors.unauthorized(
@@ -120,6 +122,33 @@ app.put("/posts/:postId/comments/:commentId", async (req, res) => {
       },
       select: {
         message: true,
+      },
+    })
+  );
+});
+
+app.delete("posts/:postId/comments/:commentId", async (req, res) => {
+  //identify the userId connected to the post
+  const { userId } = await prisma.comment.findUnique({
+    where: { id: req.params.commentId },
+    select: { userId: true },
+  });
+  //check that userId of post matches the id of the user attempting the update
+  if (userId !== req.cookies.userId) {
+    return res.send(
+      app.httpErrors.unauthorized(
+        "You do not have permission to delete this message"
+      )
+    );
+  }
+
+  return await commitToDb(
+    prisma.comment.delete({
+      where: {
+        id: req.params.commentId,
+      },
+      seleect: {
+        id: true,
       },
     })
   );
