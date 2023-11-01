@@ -4,6 +4,8 @@ import { CommentList } from "./CommentList";
 import { IconBtn } from "./IconBtn";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
 import { CommentForm } from "./CommentForm";
+import { useAsyncFn } from "../hooks/useAsync";
+import { createComment } from "../services/comments";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -13,8 +15,18 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 export function Comment({ id, message, user, createdAt }) {
   const [areChildrenHidden, setAreChildrenHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
-  const { getReplies } = usePost();
+  const { post, getReplies, createLocalComment } = usePost();
+  const createCommentFn = useAsyncFn(createComment);
   const childComments = getReplies(id);
+
+  function onCommentReply(message) {
+    return createCommentFn
+      .execute({ postId: post.id, message, parentId: id })
+      .then((comment) => {
+        setIsReplying(false);
+        createLocalComment(comment);
+      });
+  }
 
   return (
     <>
@@ -42,7 +54,12 @@ export function Comment({ id, message, user, createdAt }) {
       </div>
       {isReplying && (
         <div className="mt--1 ml-3">
-          <CommentForm autoFocus onSubmit loading error />
+          <CommentForm
+            autoFocus
+            onSubmit={onCommentReply}
+            loading={createCommentFn.loading}
+            error={createCommentFn.error}
+          />
         </div>
       )}
       {childComments?.length > 0 && (
